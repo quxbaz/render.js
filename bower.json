@@ -1,0 +1,19 @@
+{
+  "name": "render.js",
+  "main": "render.js",
+  "authors": [
+    "David Yeung <quxbaz@gmail.com>"
+  ],
+  "description": "Handlebars tool for rendering subtemplates.",
+  "moduleType": [],
+  "license": "MIT",
+  "homepage": "https://github.com/quxbaz/render.js",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
