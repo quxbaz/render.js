@@ -42,7 +42,7 @@ describe('render.js', function() {
         this.el = document.createElement('div');
         this.$el = $(this.el);
         this.data = data;
-        this.html = html;
+        this.html = html || '';
       };
       View.prototype.templateData = function() {
         return this.data;
@@ -80,6 +80,23 @@ describe('render.js', function() {
       var child = new View({}, 'my dad is {{dadAge}} years old');
       var parent = new View({child: child, age: 42}, '{{render child dadAge=age}}');
       parent.render().el.innerHTML.should.eql('<div>my dad is 42 years old</div>');
+    });
+
+    it("should provide a custom preRender function.", function() {
+      View.prototype.preRender = function(data) {
+        data.foo = 'sunny';
+        return data;
+      };
+      var v = new View({foo: 'bar'}, 'hello {{foo}} world');
+      v.render().el.innerHTML.should.eql('hello sunny world');
+    });
+
+    it("should provide a custom postRender function.", function() {
+      View.prototype.postRender = function(data) {
+        return data.foo + ' hooked';
+      };
+      var v = new View({foo: 'you are'});
+      v.render().should.eql('you are hooked');
     });
 
   });
