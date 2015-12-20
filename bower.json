@@ -4,7 +4,7 @@
   "authors": [
     "David Yeung <quxbaz@gmail.com>"
   ],
-  "description": "Handlebars tool for rendering subtemplates.",
+  "description": "Handlebars tool for rendering sub-templates.",
   "moduleType": [],
   "license": "MIT",
   "homepage": "https://github.com/quxbaz/render.js",
