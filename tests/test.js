@@ -8,20 +8,22 @@ describe('render.js', function() {
 
   describe('.setUniqueId', function() {
 
+    var Foo = function() {};
+
     before(function() {
-      render.setUniqueId();
+      render.setUniqueId(Foo.prototype);
     });
 
     it("should set a 'UID' property on an object.", function() {
-      var a = {};
+      var a = new Foo();
       a.UID.should.not.eql(undefined);
-      var b = {};
+      var b = new Foo();
       b.UID.should.not.eql(undefined);
     });
 
     it("should set only unique ids.", function() {
       var ids = _.times(1000, function() {
-        return new Object().UID;
+        return new Foo().UID;
       });
       _.uniq(ids).length.should.eql(ids.length);
     });
@@ -33,7 +35,6 @@ describe('render.js', function() {
     var View;
 
     before(function() {
-      render.setUniqueId();
       render.registerHelper(Handlebars);
     });
 
@@ -44,6 +45,7 @@ describe('render.js', function() {
         this.data = data;
         this.html = html || '';
       };
+      render.setUniqueId(View.prototype);
       View.prototype.templateData = function() {
         return this.data;
       };

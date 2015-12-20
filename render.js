@@ -46,17 +46,15 @@ function find(list, pred) {
   return undefined;
 }
 
-// Every object created will have an unique id called 'UID'.
+// Every object created from the prototype will have an unique id
+// called 'UID'.
 var setUniqueId = (function() {
-  var called = false;
   var id = 0;
-  return function() {
-    if (called) return;
-    called = true;
-    Object.defineProperty(Object.prototype, '__uniqueId', {
+  return function(prototype) {
+    Object.defineProperty(prototype, '__uniqueId', {
       writable: true
     });
-    Object.defineProperty(Object.prototype, 'UID', {
+    Object.defineProperty(prototype, 'UID', {
       get: function() {
         if (this.__uniqueId == undefined)
           this.__uniqueId = id++;
@@ -127,7 +125,7 @@ function setup(Handlebars, prototype) {
     throw new Error('You must provide the Handlebars object to register a helper on.');
   if (!prototype)
     throw new Error('You must provide a prototype object to mixin.');
-  setUniqueId();
+  setUniqueId(prototype);
   registerHelper(Handlebars);
   mixin(prototype);
 }
