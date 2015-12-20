@@ -1,5 +1,6 @@
 /*
   render.js
+  Handlebars tool for rendering sub-templates. No dependencies.
 */
 
 function has(obj, key) {
@@ -121,8 +122,19 @@ var registerHelper = function(Handlebars) {
   });
 };
 
+function setup(Handlebars, prototype) {
+  if (!Handlebars)
+    throw new Error('You must provide the Handlebars object to register a helper on.');
+  if (!prototype)
+    throw new Error('You must provide a prototype object to mixin.');
+  setUniqueId();
+  registerHelper(Handlebars);
+  mixin(prototype);
+}
+
 module.exports = {
   setUniqueId: setUniqueId,
   mixin: mixin,
-  registerHelper: registerHelper
+  registerHelper: registerHelper,
+  setup: setup
 };

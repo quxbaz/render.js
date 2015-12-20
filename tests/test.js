@@ -28,7 +28,7 @@ describe('render.js', function() {
 
   });
 
-  describe("render mixin", function() {
+  describe("renderer", function() {
 
     var View;
 
