@@ -1,4 +1,49 @@
-// Styles
+/*
+  render.js
+*/
+
+function has(obj, key) {
+  return obj.hasOwnProperty(key);
+}
+
+function each(obj, fn, context) {
+  if (Array.isArray(obj)) {
+    for (var i=0; i < obj.length; i++)
+      fn.call(context, obj, i);
+  }
+  else {
+    for (var k in obj) {
+      if (obj.hasOwnProperty(k))
+        fn.call(context, obj[k], k);
+    }
+  }
+}
+
+function extend(a, b) {
+  if (typeof b != 'object')
+    return a;
+  each(b, function(val, key) {
+    a[key] = val;
+  });
+  return a;
+}
+
+function values(obj) {
+  var vals = [];
+  for (var k in obj) {
+    if (has(obj, k))
+      vals.push(obj[k]);
+  }
+  return vals;
+}
+
+function find(list, pred) {
+  for (var i=0; i < list.length; i++) {
+    if (pred(list[i]))
+      return list[i];
+  }
+  return undefined;
+}
 
 // Every object created will have an unique id called 'UID'.
 var setUniqueId = (function() {
@@ -21,54 +66,39 @@ var setUniqueId = (function() {
 })();
 
 /*
-  Assumptions:
-  preRender, postRender
-  this.templateData
-  this.template  -> a handlebars compiled template
-  this.el
+  Adds the methods preRender, postRender, renderContent, and render to
+  the prototype. The prototype should supply a method templateData
+  that provides the render function any data it needs to render the
+  template. The object instance created from the prototype should have
+  an object this.el containing the DOM object that represents it.
 */
+var mixin = function(prototype) {
 
-/*
-  Example usage:
-  _.extend(Backbone.View.prototype, mixin);
-*/
-var mixin = {
-  render: function() {
-    var data = this.templateData ? this.templateData() : {};
+  prototype.render = function(data) {
+    var data = data || this.templateData();
+    return this.postRender(this.renderContent(this.preRender(data)));
+  };
 
-    if (this.preRender)
-      this.preRender(data);
+  prototype.preRender = prototype.preRender || function(data){return data};
 
-    if (this.template) {
+  prototype.renderContent = prototype.renderContext || function(data) {
+    var data = data || {};
+    if (!this.template)
+      return data;
+    extend(data, this.__renderArgs);
+    this.el.innerHTML = this.template(data);
+    each(this.el.getElementsByClassName('__render-placeholder'), function(el) {
+      var uid = parseInt(el.dataset.uid);
+      var renderObj = find(values(data), function(val) {
+        return typeof val == 'object' && val.UID == uid;
+      });
+      renderObj && this.el.replaceChild(renderObj.render().el, el);
+    }, this);
+    return data;
+  };
 
-      if (this.__renderArgs) {
-        for (var k in this.__renderArgs)
-          data[k] = this.__renderArgs[k];
-      }
+  prototype.postRender = prototype.postRender || function(data){return this};
 
-      this.el.innerHTML = this.template(data);
-
-      var placeholders = this.el.getElementsByClassName('__placeholder-el');
-      for (var i=0; i < placeholders.length; i++) {
-        var placeholder = placeholders[i];
-        var uid = parseInt(placeholder.dataset.uid);
-        var renderObj;
-        for (var k in data) {
-          if (data.hasOwnProperty(k)) {
-            var val = data[k];
-            if (typeof val == 'object' && val.UID == uid)
-              renderObj = val;
-          }
-        }
-        if (renderObj)
-          this.el.replaceChild(renderObj.render().el, placeholder);
-      }
-    }
-
-    if (this.postRender)
-      this.postRender(data);
-    return this;
-  }
 };
 
 var registerHelper = function(Handlebars) {
@@ -86,7 +116,7 @@ var registerHelper = function(Handlebars) {
       configurable: true,
       get: function() {return options.hash;}
     });
-    var div = '<div class="__placeholder-el" data-uid="' + renderObj.UID + '"></div>';
+    var div = '<div class="__render-placeholder" data-uid="' + renderObj.UID + '"></div>';
     return new Handlebars.SafeString(div);
   });
 };
