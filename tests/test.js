@@ -50,7 +50,7 @@ describe('render.js', function() {
       View.prototype.template = function(data) {
         return Handlebars.compile(this.html)(data);
       };
-      _.extend(View.prototype, render.mixin);
+      render.mixin(View.prototype);
     });
 
     it("should render a simple attribute.", function() {
