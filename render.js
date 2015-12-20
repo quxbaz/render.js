@@ -114,7 +114,7 @@ var registerHelper = function(Handlebars) {
       throw new Error('{{render <obj>}} was passed undefined.');
     Object.defineProperty(renderObj, '__renderArgs', {
       configurable: true,
-      get: function() {return options.hash;}
+      get: function() {return options.hash}
     });
     var div = '<div class="__render-placeholder" data-uid="' + renderObj.UID + '"></div>';
     return new Handlebars.SafeString(div);
