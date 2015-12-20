@@ -99,6 +99,15 @@ describe('render.js', function() {
       v.render().should.eql('you are hooked');
     });
 
+    it("should provide a custom renderContent function.", function() {
+      View.prototype.renderContent = function(data) {
+        this.el.innerHTML = data.foo + 'bar';
+        return data;
+      };
+      var v = new View({foo: 'bar'});
+      v.render().el.innerHTML.should.eql('barbar');
+    });
+
   });
 
 });
