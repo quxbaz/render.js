@@ -84,6 +84,31 @@ describe('render.js', function() {
       parent.render().el.innerHTML.should.eql('<div>my dad is 42 years old</div>');
     });
 
+    it("should render within a nested div", function() {
+      var child = new View({}, 'foobar');
+      var main = new View({child: child});
+      main.html = '<div>{{render child}}</div>'
+      main.render().el.innerHTML.should.eql('<div><div>foobar</div></div>');
+    });
+
+    it("should render within a second-level nested div", function() {
+      var child = new View({}, 'foobar');
+      var main = new View({child: child});
+      main.html = '<div><div>{{render child}}</div></div>';
+      main.render().el.innerHTML.should.eql('<div><div><div>foobar</div></div></div>');
+    });
+
+    // TODO: render should work with arrays.
+    it("should render a list of subviews.", function() {
+      var children = _.times(3, function(i) {
+        return new View({age: 5 + i}, 'i am {{age}} years old! weee');
+      });
+      var main = new View({children: children});
+      main.html = '{{#each children}}{{render this}}{{/each}}';
+      main.render();
+      console.log(main.el);
+    });
+
     it("should provide a custom preRender function.", function() {
       View.prototype.preRender = function(data) {
         data.foo = 'sunny';

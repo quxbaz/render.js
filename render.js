@@ -91,7 +91,7 @@ var mixin = function(prototype) {
       var renderObj = find(values(data), function(val) {
         return typeof val == 'object' && val.UID == uid;
       });
-      renderObj && this.el.replaceChild(renderObj.render().el, el);
+      renderObj && el.parentNode.replaceChild(renderObj.render().el, el);
     }, this);
     return data;
   };
