@@ -98,15 +98,28 @@ describe('render.js', function() {
       main.render().el.innerHTML.should.eql('<div><div><div>foobar</div></div></div>');
     });
 
-    // TODO: render should work with arrays.
     it("should render a list of subviews.", function() {
       var children = _.times(3, function(i) {
-        return new View({age: 5 + i}, 'i am {{age}} years old! weee');
+        return new View({age: 5 + i}, '{{age}}y');
       });
       var main = new View({children: children});
       main.html = '{{#each children}}{{render this}}{{/each}}';
-      main.render();
-      console.log(main.el);
+      main.render().el.innerHTML.should.eql(
+        '<div>5y</div><div>6y</div><div>7y</div>'
+      );
+    });
+
+    it("should render a list of subviews that subrender.", function() {
+      var toys = ['doll', 'truck', 'bear'];
+      var children = _.times(3, function(i) {
+        var toy = new View({name: toys[i]}, 'big {{name}}');
+        return new View({toy: toy}, 'my toy is a {{render toy}}');
+      });
+      var main = new View({children: children});
+      main.html = '{{#each children}}{{render this}}{{/each}}';
+      main.render().el.innerHTML.should.eql(
+        '<div>my toy is a <div>big doll</div></div><div>my toy is a <div>big truck</div></div><div>my toy is a <div>big bear</div></div>'
+      );
     });
 
     it("should provide a custom preRender function.", function() {

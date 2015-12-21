@@ -9,14 +9,20 @@ function has(obj, key) {
 }
 
 function each(obj, fn, context) {
+  var toEnd = false;
+  var end = function() {toEnd = true};
   if (Array.isArray(obj)) {
-    for (var i=0; i < obj.length; i++)
-      fn.call(context, obj, i);
+    for (var i=0; i < obj.length; i++) {
+      fn.call(context, obj[i], i, end);
+      if (toEnd) break;
+    }
   }
   else {
     for (var k in obj) {
-      if (obj.hasOwnProperty(k))
-        fn.call(context, obj[k], k);
+      if (has(obj, k)) {
+        fn.call(context, obj[k], k, end);
+        if (toEnd) break;
+      }
     }
   }
 }
@@ -86,13 +92,34 @@ var mixin = function(prototype) {
       return data;
     extend(data, this.__renderArgs);
     this.el.innerHTML = this.template(data);
-    each(this.el.getElementsByClassName('__render-placeholder'), function(el) {
-      var uid = parseInt(el.dataset.uid);
-      var renderObj = find(values(data), function(val) {
-        return typeof val == 'object' && val.UID == uid;
-      });
-      renderObj && el.parentNode.replaceChild(renderObj.render().el, el);
-    }, this);
+
+    var placeholders = this.el.getElementsByClassName('__render-placeholder');
+
+    function matchObjects(data, placeholder) {
+      var uid = parseInt(placeholder.dataset.uid);
+      (function match(data) {
+        each(values(data), function(val, i, end) {
+          if (Array.isArray(val))
+            match(val);
+          else if (typeof val == 'object' && val.UID == uid) {
+            placeholder.appendChild(val.render().el);
+            end();
+          }
+        });
+      })(data);
+    }
+
+    each(placeholders, function(placeholder) {
+      matchObjects(data, placeholder);
+    });
+
+    // Remove placeholder <script> tags.
+    for (var i=placeholders.length-1; i >= 0; i--) {
+      var placeholder = placeholders[i];
+      // Placeholders can/should only ever have a single child node.
+      placeholder.parentNode.replaceChild(placeholder.firstChild, placeholder);
+    }
+
     return data;
   };
 
