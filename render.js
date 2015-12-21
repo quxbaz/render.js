@@ -1,6 +1,7 @@
 /*
   render.js
-  Handlebars tool for rendering sub-templates. No dependencies.
+  Handlebars tool for rendering sub-templates. No dependencies besides
+  Handlebars.
 */
 
 function has(obj, key) {
