@@ -74,14 +74,13 @@ var setUniqueId = (function() {
 var mixin = function(prototype) {
 
   prototype.render = function(data) {
-    var data = data || this.templateData();
+    var data = data || (this.templateData ? this.templateData() : {});
     return this.postRender(this.renderContent(this.preRender(data)));
   };
 
   prototype.preRender = prototype.preRender || function(data){return data};
 
   prototype.renderContent = prototype.renderContext || function(data) {
-    var data = data || {};
     if (!this.template)
       return data;
     extend(data, this.__renderArgs);
